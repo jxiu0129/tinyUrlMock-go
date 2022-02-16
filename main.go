@@ -1,35 +1,47 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+
+	"tinyUrlMock-go/api/admin"
+	"tinyUrlMock-go/api/base"
+	"tinyUrlMock-go/api/url"
+	"tinyUrlMock-go/lib/db"
 )
 
 func main() {
 	router := gin.Default()
+	// !error, and dont know what for
+	// router.Use(ginrequestid.RequestId())
 
-	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello world")
-	})
+	db.Init()
+
+	base.Route(router) //=> /:redirect(api)
+
+	api := router.Group("/v1")
+	admin.Route(api) //=> createNewKey(service)
+	url.Route(api)   //=> createTinyUrl(api)
 
 	router.Run(":8080")
 
-	// srv := &http.Server{
-	// 	Addr:           fmt.Sprintf(":%d", config.Config.Port),
-	// 	Handler:        router,
-	// 	// ReadTimeout:    defReadTimeout,
-	// 	// WriteTimeout:   defWriteTimeout,
-	// 	// MaxHeaderBytes: defMaxHeaderBytes,
-	// }
+	/* from funnow-go
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", config.Config.Port),
+		Handler: router,
+		// ReadTimeout:    defReadTimeout,
+		// WriteTimeout:   defWriteTimeout,
+		// MaxHeaderBytes: defMaxHeaderBytes,
+	}
 
-	// fmt.Printf("FunNow API Server started listen port: %d", config.Config.Port)
+	fmt.Printf("FunNow API Server started listen port: %d", config.Config.Port)
 
-	// go func() {
-	// 	// service connections
-	// 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-	// 		// logs.Systemf("Server listen error: %v", err)
-	// 		fmt.Printf("sever listen error %v", err)
-	// 	}
-	// }()
+	go func() {
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			// logs.Systemf("Server listen error: %v", err)
+			fmt.Printf("sever listen error %v", err)
+		}
+	}()
+	*/
+
 }
