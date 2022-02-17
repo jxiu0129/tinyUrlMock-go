@@ -22,9 +22,6 @@ func Route(router *gin.Engine) {
 		fmt.Println("hello world")
 		// c.JSON(200, )
 	})
-	router.GET("/:redirect", func(c *gin.Context) {
-		fmt.Printf("%v\n", c.Param("redirect"))
-	})
 	router.GET("/json", func(c *gin.Context) {
 		fmt.Printf("%v\n", c.Request)
 		var testRes response
@@ -33,6 +30,11 @@ func Route(router *gin.Engine) {
 		// testRes.data = []string{}
 		testRes2 := []string{"hello world", "world"}
 		c.JSON(200, testRes2)
+	})
+
+	// ! real redirect
+	router.GET("/:redirect", func(c *gin.Context) {
+		fmt.Printf("%v\n", c.Param("redirect"))
 	})
 }
 

@@ -6,5 +6,5 @@ import (
 
 func Route(r *gin.RouterGroup) {
 	g := r.Group("/url")
-	g.GET("/:redirectUrl", RedirectUrl)
+	g.POST("/createTinyUrl", CreateTinyUrl)
 }

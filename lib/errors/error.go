@@ -1,12 +1,16 @@
 package errors
 
 import (
-	"database/sql"
 	"net/http"
+	"tinyUrlMock-go/lib/apires"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+)
+
+const MessageOK = "OK"
+
+type (
+	CustomMsg string
 )
 
 const (
@@ -368,8 +372,9 @@ var ErrCodeMsgMap = map[int]string{
 func Throw(c *gin.Context, err error) {
 
 	//// logs.Log(c, logs.TypeErr, err.Error())
+	Error(c, http.StatusInternalServerError, CODE_UNKNOWN_ERR, err)
 
-	if gorm.IsRecordNotFoundError(err) || err == sql.ErrNoRows {
+	/* if gorm.IsRecordNotFoundError(err) || err == sql.ErrNoRows {
 		DBError(c, err)
 		return
 	}
@@ -383,5 +388,73 @@ func Throw(c *gin.Context, err error) {
 		CustomError(c, e)
 	default:
 		Error(c, http.StatusInternalServerError, CODE_UNKNOWN_ERR, e)
+	} */
+}
+
+func Error(c *gin.Context, httpCode int, code int, err interface{}) {
+	var msg string
+	switch err := err.(type) {
+	case CustomMsg:
+		// Error message and log already handled by CustomError
+		msg = string(err)
+	case error:
+		// logs.Log(c, logs.TypeErr, err.Error())
+		msg = getMsgByCode(c, code, err.Error())
+	case string:
+		// logs.Log(c, logs.TypeErr, err)
+		msg = getMsgByCode(c, code, err)
 	}
+
+	if m, ok := err.(map[string][]interface{}); ok {
+		c.JSON(httpCode, apires.Errs{
+			Base: apires.Base{
+				Code:    code,
+				Message: msg,
+			},
+			Errs: m,
+		})
+	} else {
+		c.JSON(httpCode, apires.Base{
+			Code:    code,
+			Message: msg,
+		})
+	}
+
+	c.Abort()
+}
+
+func getMsgByCode(c *gin.Context, code int, msg string) string {
+
+	// T := lang.GetTFunc(c)
+	switch code {
+	case CODE_AUTH_ERR:
+		msg = "Authentication failed"
+	case CODE_LOGIN_ERR:
+		msg = "Login failed"
+		// if T != nil {
+		// 	msg = T("login_failed_err")
+		// }
+	case CODE_SESSION_ERR:
+		msg = "Session error"
+	case CODE_GUEST_ERR:
+		msg = "Guest Authentication failed"
+	case CODE_NOT_EXISTS:
+		msg = "Data not found"
+		// if T != nil {
+		// 	msg = T("data_not_found")
+		// }
+	case CODE_PROMO_CREDIT_ERR:
+		msg = "Invalid credit card to use the promo code"
+		// if T != nil {
+		// 	msg = T("invalid_promo_credit")
+		// }
+	case CODE_INVALID_PARAMS:
+		if msg == "" {
+			msg = "Invalid input parameter"
+			// if T != nil {
+			// 	msg = T("params_err")
+			// }
+		}
+	}
+	return msg
 }

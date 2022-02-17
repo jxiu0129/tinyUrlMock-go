@@ -61,7 +61,7 @@ var (
 	// ErrBonusNoEnough
 	ErrBonusNoEnough = NewErr(http.StatusBadRequest, CODE_BONUS_NOT_ENOUGH)
 	// ErrRegistered when FunNow member register with already registered AuthID
-	ErrRegistered = NewErr(http.StatusBadRequest, CODE_DUPLICATE_KEY).SetMsgCode(CODE_REGISTERED_ERR)
+	// ErrRegistered = NewErr(http.StatusBadRequest, CODE_DUPLICATE_KEY).SetMsgCode(CODE_REGISTERED_ERR)
 	// ErrRedeemCodeNotFound when input redeem code not found
 	ErrRedeemCodeNotFound = NewErr(http.StatusBadRequest, CODE_REDEEM_CODE_NOT_FOUND)
 	// ErrReleaseAlready
@@ -79,7 +79,7 @@ var (
 	// ErrInvalidBinCode
 	ErrInvalidBinCode = NewErr(http.StatusOK, CODE_TAPPAY_BIN_CODE_ERROR)
 	// ErrMobilePay
-	ErrMobilePay = NewErr(http.StatusOK, CODE_PAYMENT_ERR).SetMsgCode(CODE_MOBILE_PAY_FAILED)
+	// ErrMobilePay = NewErr(http.StatusOK, CODE_PAYMENT_ERR).SetMsgCode(CODE_MOBILE_PAY_FAILED)
 	// ErrMovieTicketInvalid
 	ErrMovieTicketInvalid = NewErr(http.StatusBadRequest, CODE_EZDING_TICKET_INVALID)
 	// ErrMoviePromoInvalid

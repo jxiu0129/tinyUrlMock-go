@@ -4,7 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// createKey
 func Route(r *gin.RouterGroup) {
-	g := r.Group("/url")
-	g.POST("/createTinyUrl", CreateTinyUrl)
+	// g := r.Group("/url")
+	// g.POST("/:redirect", CreateTinyUrl)
 }
