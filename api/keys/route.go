@@ -1,4 +1,4 @@
-package admin
+package keys
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,6 +6,6 @@ import (
 
 // createKey
 func Route(r *gin.RouterGroup) {
-	// g := r.Group("/url")
-	// g.POST("/:redirect", CreateTinyUrl)
+	g := r.Group("/keys")
+	g.GET("/createNewKeys", CreateNewKeys)
 }

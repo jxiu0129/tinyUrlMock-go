@@ -48,7 +48,7 @@ func CreateTinyUrl(ctx *gin.Context) {
 	}
 	// todo logic
 
-	// ? ask: &CreateTinyUrlResponse?
+	// ?ok ask: &CreateTinyUrlResponse => 吃值吃址都可以
 	ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
 		Base: apires.Base{
 			Code:    errors.CODE_OK,

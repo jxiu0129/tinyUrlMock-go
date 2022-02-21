@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 
-	"tinyUrlMock-go/api/admin"
 	"tinyUrlMock-go/api/base"
+	"tinyUrlMock-go/api/keys"
 	"tinyUrlMock-go/api/url"
 	"tinyUrlMock-go/lib/db"
 )
@@ -19,8 +19,8 @@ func main() {
 	base.Route(router) //=> /:redirect(api)
 
 	api := router.Group("/v1")
-	admin.Route(api) //=> createNewKey(service)
-	url.Route(api)   //=> createTinyUrl(api)
+	keys.Route(api) //=> createNewKey(service)
+	url.Route(api)  //=> createTinyUrl(api)
 
 	router.Run(":8080")
 
