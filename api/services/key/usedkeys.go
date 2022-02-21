@@ -33,3 +33,27 @@ func (s *Service) SearchAllUsedKeys() ([]*edb.UsedKeys, error) {
 
 	return usedKeys, nil
 }
+
+func (s *Service) InsertUsedKeys(newKeysArray []string) error {
+	valuesStr := ""
+	for i, key := range newKeysArray {
+		if i == len(newKeysArray)-1 {
+			valuesStr += fmt.Sprintf("('%v')", key)
+			break
+		}
+		valuesStr += fmt.Sprintf("('%v'),", key)
+	}
+
+	sql := "INSERT INTO" +
+		"`UsedKeys` (`UniqueKey`)" +
+		"VALUES " + valuesStr
+
+	if err := s.db.Exec(sql).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Service) DeleteUsedKeys(keysArray []string) error {
+	return s.db.Delete(&edb.UsedKeys{}, "UniqueKey IN (?)", keysArray).Error
+}

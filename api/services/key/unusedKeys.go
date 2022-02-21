@@ -72,10 +72,10 @@ func (s *Service) DeleteUnusedKeys(keys []string) error {
 	return s.db.Delete(&edb.UnusedKeys{}, "UniqueKey IN (?)", keys).Error
 }
 
-func (s *Service) InsertUsedKeys(newKeysArray []string) error {
+func (s *Service) InsertUnusedKeys(keys []string) error {
 	valuesStr := ""
-	for i, key := range newKeysArray {
-		if i == len(newKeysArray)-1 {
+	for i, key := range keys {
+		if i == len(keys)-1 {
 			valuesStr += fmt.Sprintf("('%v')", key)
 			break
 		}
@@ -83,7 +83,7 @@ func (s *Service) InsertUsedKeys(newKeysArray []string) error {
 	}
 
 	sql := "INSERT INTO" +
-		"`UsedKeys` (`UniqueKey`)" +
+		"`UnusedKeys` (`UniqueKey`)" +
 		"VALUES " + valuesStr
 
 	if err := s.db.Exec(sql).Error; err != nil {

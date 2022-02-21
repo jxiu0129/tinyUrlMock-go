@@ -86,3 +86,17 @@ func SetKeyUsed(ctx *gin.Context) {
 		},
 	})
 }
+
+// todo 沒測過
+func SetKeyUnused(keys []string) error {
+
+	// keys => ['ws231w', 'dqwdw2',...]
+	// var err error
+	if err := skey.New(db.DBGorm).DeleteUsedKeys(keys); err != nil {
+		return err
+	}
+	if err := skey.New(db.DBGorm).InsertUnusedKeys(keys); err != nil {
+		return err
+	}
+	return nil
+}
