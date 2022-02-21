@@ -2,13 +2,9 @@ package keys
 
 import (
 	"fmt"
-	"net/http"
 	skey "tinyUrlMock-go/api/services/key"
 	"tinyUrlMock-go/lib/apires"
 	"tinyUrlMock-go/lib/db"
-	"tinyUrlMock-go/lib/errors"
-
-	"github.com/gin-gonic/gin"
 )
 
 // empty request example
@@ -57,34 +53,35 @@ type (
 // setKeysUsed (update) -> (service/control)
 // setKeysUnused (update) -> (service/control)
 // url_expired ? () -> url
-func SetKeyUsed(ctx *gin.Context) {
+func SetOneKeyUsed() (string, error) {
 
 	var err error
 	// 1. find One From UnusedKey
 	key, err := skey.New(db.DBGorm).FindOneUnusedKey()
 	if err != nil {
-		errors.Throw(ctx, err)
+		return "", err
 	}
 
 	fmt.Println(key, err)
 	updateKeys := []string{key}
 	// 2. delete One From UnusedKey
 	if err := skey.New(db.DBGorm).DeleteUnusedKeys(updateKeys); err != nil {
-		errors.Throw(ctx, err)
+		return "", err
 	}
 	// 3. insertUsedKey
 	if err := skey.New(db.DBGorm).InsertUsedKeys(updateKeys); err != nil {
-		errors.Throw(ctx, err)
+		return "", err
 	}
-	ctx.JSON(http.StatusOK, &UpdateKeyResponse{
-		Base: apires.Base{
-			Code:    errors.CODE_OK,
-			Message: errors.MessageOK,
-		},
-		Data: UpdateKeyResponseData{
-			UpdateKeys: updateKeys,
-		},
-	})
+	// ctx.JSON(http.StatusOK, &UpdateKeyResponse{
+	// 	Base: apires.Base{
+	// 		Code:    errors.CODE_OK,
+	// 		Message: errors.MessageOK,
+	// 	},
+	// 	Data: UpdateKeyResponseData{
+	// 		UpdateKeys: updateKeys,
+	// 	},
+	// })
+	return key, nil
 }
 
 // todo 沒測過
