@@ -64,6 +64,8 @@ func Route(router *gin.Engine) {
 					ctx.Redirect(http.StatusFound, "https://"+existUrl.OriginalUrl)
 				}
 			}
+		} else {
+			errors.Throw(ctx, errors.ErrNoData.Err)
 		}
 	})
 }

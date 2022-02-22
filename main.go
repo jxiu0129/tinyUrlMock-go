@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 
 	"tinyUrlMock-go/api/base"
@@ -8,6 +10,7 @@ import (
 	"tinyUrlMock-go/api/url"
 	"tinyUrlMock-go/config"
 	"tinyUrlMock-go/lib/db"
+	"tinyUrlMock-go/lib/redis"
 )
 
 func main() {
@@ -15,6 +18,9 @@ func main() {
 	router := gin.Default()
 	// !error, and dont know what for
 	// router.Use(ginrequestid.RequestId())
+
+	// redis
+	redis.Init()
 
 	db.Init()
 
@@ -24,7 +30,11 @@ func main() {
 	keys.Route(api) //=> createNewKey(service)
 	url.Route(api)  //=> createTinyUrl(api)
 
-	router.Run(":8080")
+	// router.GET("*", func(ctx *gin.Context) {
+	// 	ctx.JSON(http.StatusNotFound, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+	// })
+
+	router.Run(fmt.Sprintf(":%v", config.Config.Port))
 
 	/* from funnow-go
 	srv := &http.Server{
