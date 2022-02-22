@@ -54,7 +54,7 @@ func CreateTinyUrl(ctx *gin.Context) {
 	// todo 0.先從redis找
 	// todo url會過期
 	// 1.找db有沒有一模一樣已經換過的，有的話直接回傳
-	existUrl, err := surl.New(db.DBGorm).FindExistUrl(originalUrl)
+	existUrl, err := surl.New(db.DBGorm).FindExistUrl(surl.FindUrl{OriginalUrl: originalUrl})
 	// fmt.Println("here ====> ", existUrl, err)
 	if err != nil {
 		errors.Throw(ctx, err)

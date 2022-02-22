@@ -2,10 +2,15 @@ package base
 
 import (
 	"fmt"
+	"net/http"
+	surl "tinyUrlMock-go/api/services/url"
+	"tinyUrlMock-go/lib/db"
+	"tinyUrlMock-go/lib/errors"
 
 	"github.com/gin-gonic/gin"
 )
 
+// for practice
 type response struct {
 	status  int
 	message string
@@ -33,13 +38,21 @@ func Route(router *gin.Engine) {
 	})
 
 	// ! real redirect
-	router.GET("/:redirect", func(c *gin.Context) {
-		fmt.Printf("%v\n", c.Param("redirect"))
+	router.GET("/:redirect", func(ctx *gin.Context) {
+		redirectUrl := ctx.Param("redirect")
+		if len(redirectUrl) == 6 {
+			//todo 1. 先從redis
+			// 2. 再從db
+			url, err := surl.New(db.DBGorm).FindExistUrl(surl.FindUrl{ShortenUrl: redirectUrl})
+			// fmt.Println(url)
+			if err != nil {
+				errors.Throw(ctx, err)
+				return
+			}
+			if url != nil {
+				fmt.Println("redirect from db")
+				ctx.Redirect(http.StatusFound, "https://"+url.OriginalUrl)
+			}
+		}
 	})
 }
-
-// router.route("/admin").post(admin.createNewKeys).get(admin.clearAll); -> api/admin
-
-// router.route("/createTinyUrl").post(url.createTinyUrl); -> api/url
-
-// router.route("/:url").get(url.redirectUrl); -> api/base
