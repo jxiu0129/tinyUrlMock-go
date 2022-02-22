@@ -51,3 +51,7 @@ func (s *Service) FindExistUrl(url FindUrl) (*edb.Url, error) {
 	}
 	return u, nil
 }
+
+func (s *Service) DeleteByShortenUrl(url *edb.Url) error {
+	return s.db.Delete(&edb.Url{}).Where("ShortenUrl = ?", url.ShortenUrl).Error
+}

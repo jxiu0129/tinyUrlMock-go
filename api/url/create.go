@@ -9,6 +9,7 @@ import (
 	surl "tinyUrlMock-go/api/services/url"
 	"tinyUrlMock-go/lib/apires"
 	"tinyUrlMock-go/lib/db"
+	"tinyUrlMock-go/lib/db/util"
 	"tinyUrlMock-go/lib/errors"
 
 	"github.com/gin-gonic/gin"
@@ -62,18 +63,26 @@ func CreateTinyUrl(ctx *gin.Context) {
 
 	}
 	if existUrl != nil {
-		ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
-			Base: apires.Base{
-				Code:    errors.CODE_OK,
-				Message: errors.MessageOK,
-			},
-			Data: CreateTinyUrlResponseData{
-				ShortenUrl:  "http://localhost:8080/" + existUrl.ShortenUrl,
-				OriginalUrl: originalUrl,
-			},
-		})
-		fmt.Println("from db")
-		return
+		if util.IsUrlExpired(existUrl.CreatedAt) {
+			// url expired
+			if err := UrlExpired(existUrl); err != nil {
+				errors.Throw(ctx, err)
+				return
+			}
+		} else {
+			ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
+				Base: apires.Base{
+					Code:    errors.CODE_OK,
+					Message: errors.MessageOK,
+				},
+				Data: CreateTinyUrlResponseData{
+					ShortenUrl:  "http://localhost:8080/" + existUrl.ShortenUrl,
+					OriginalUrl: originalUrl,
+				},
+			})
+			fmt.Println("from db")
+			return
+		}
 	}
 
 	// 2.新增一個tinyurl, (key DB)unused => used
@@ -105,8 +114,3 @@ func CreateTinyUrl(ctx *gin.Context) {
 	})
 
 }
-
-// todo
-// func urlExpired(url string) error {
-
-// }
