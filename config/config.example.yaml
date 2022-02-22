@@ -1,0 +1,12 @@
+BaseURL: http://localhost
+Port: 8080
+
+db:
+  User: user
+  Password: password
+  Protocol: tcp
+  Host: localhost
+  Port: 3306
+  Name: Url_Shortener
+  Params: charset=utf8mb4&parseTime=True
+  

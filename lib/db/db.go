@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"tinyUrlMock-go/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -21,23 +22,16 @@ var (
 
 func Init() {
 	var err error
-	// todo "github.com/jinzhu/configor"
-	dbConfig := map[string]string{
-		"User":     "root",
-		"Password": "qmakzo00",
-		"Name":     "tinyUrlMock_go",
-		"Protocol": "tcp",
-		"Params":   "charset=utf8mb4,utf8&parseTime=True&timeout=5s&readTimeout=5s&writeTimeout=5s&sql_mode=''",
-	}
+	dbConfig := config.Config.DB
 	// 先連上mysql
 	dsn := fmt.Sprintf("%v:%v@%v/%v?%v",
-		dbConfig["User"],
-		dbConfig["Password"],
-		dbConfig["Protocol"],
+		dbConfig.User,
+		dbConfig.Password,
+		dbConfig.Protocol,
 		// dbConfig.Host,
 		// dbConfig.Port,
-		dbConfig["Name"],
-		dbConfig["Params"],
+		dbConfig.Name,
+		dbConfig.Params,
 	)
 	DB, err = sql.Open("mysql", dsn)
 

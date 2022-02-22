@@ -6,10 +6,12 @@ import (
 	"tinyUrlMock-go/api/base"
 	"tinyUrlMock-go/api/keys"
 	"tinyUrlMock-go/api/url"
+	"tinyUrlMock-go/config"
 	"tinyUrlMock-go/lib/db"
 )
 
 func main() {
+	config.Init() //=>會自動執行的init是小寫的
 	router := gin.Default()
 	// !error, and dont know what for
 	// router.Use(ginrequestid.RequestId())

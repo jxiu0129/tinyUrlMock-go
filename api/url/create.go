@@ -9,8 +9,8 @@ import (
 	surl "tinyUrlMock-go/api/services/url"
 	"tinyUrlMock-go/lib/apires"
 	"tinyUrlMock-go/lib/db"
-	"tinyUrlMock-go/lib/db/util"
 	"tinyUrlMock-go/lib/errors"
+	"tinyUrlMock-go/lib/util"
 
 	"github.com/gin-gonic/gin"
 )
