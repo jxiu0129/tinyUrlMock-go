@@ -1,0 +1,68 @@
+version: "3"
+
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/data/mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: qmakzo00
+      MYSQL_DATABASE: tinyUrlMock_go
+      # MYSQL_USER: root
+      MYSQL_PASSWORD: qmakzo00
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+      ]
+    # networks:
+    #   - mynet
+
+  redis:
+    image: redis:4.0.10
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data/redis
+    # networks:
+    #   - mynet
+
+  app:
+    # image: funnowgo_app:latest
+    container_name: go-server
+    build: .
+    # build:
+      # context: ./
+      # dockerfile: Dockerfile.local
+    # volumes:
+    #   - ./:/app:cached
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
+    # command: ["/app/local-start.sh"]
+    # links:
+    #   - db
+    #   - redis
+    #   - elasticsearch
+    # environment:
+    #   APP_ENV: dev
+    #   CONFIGOR_VERBOSE_MODE: "true"
+    #   CONFIGOR_DEBUG_MODE: "true"
+    # networks:
+    #   - mynet
+
+# networks:
+#   mynet:
+#     driver: "bridge"
+
+volumes:
+  db_data:
+    driver: local
+  redis_data:
+    driver: local
