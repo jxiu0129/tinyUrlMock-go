@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -68,5 +72,16 @@ func main() {
 			fmt.Printf("sever listen error %v\n", err)
 		}
 	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-quit
+	fmt.Printf("Shutdown Server with signal %v", sig)
+
+	ctx, cancel := context.WithTimeout(context.Background(), defReadTimeout)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		fmt.Printf("Server Shutdown err: %v\n", err)
+	}
 
 }
