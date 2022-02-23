@@ -70,6 +70,7 @@ func CreateTinyUrl(ctx *gin.Context) {
 				return
 			}
 		} else {
+			// redis set
 			ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
 				Base: apires.Base{
 					Code:    errors.CODE_OK,

@@ -24,16 +24,17 @@ func Init() {
 	var err error
 	dbConfig := config.Config.DB
 	// 先連上mysql
-	dsn := fmt.Sprintf("%v:%v@%v/%v?%v",
+	dsn := fmt.Sprintf("%v:%v@%v(%v:%v)/%v?%v",
 		dbConfig.User,
 		dbConfig.Password,
 		dbConfig.Protocol,
-		// dbConfig.Host,
-		// dbConfig.Port,
+		dbConfig.Host,
+		dbConfig.Port,
 		dbConfig.Name,
 		dbConfig.Params,
 	)
 	DB, err = sql.Open("mysql", dsn)
+	fmt.Printf("mysql running on %v:%v\n", dbConfig.Host, dbConfig.Port)
 
 	if err != nil {
 		panic(err)

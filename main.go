@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -11,6 +13,13 @@ import (
 	"tinyUrlMock-go/config"
 	"tinyUrlMock-go/lib/db"
 	"tinyUrlMock-go/lib/redis"
+	"tinyUrlMock-go/middleware"
+)
+
+const (
+	defReadTimeout    = 10 * time.Second
+	defWriteTimeout   = 30 * time.Second
+	defMaxHeaderBytes = 1 << 20
 )
 
 func main() {
@@ -24,36 +33,40 @@ func main() {
 
 	db.Init()
 
+	// rate limiter
+	router.Use(middleware.RateLimiterByIP(middleware.DefRateLimiterPeriod, config.Config.RateLimiter.Base))
+
 	base.Route(router) //=> /:redirect(api)
 
 	api := router.Group("/v1")
 	keys.Route(api) //=> createNewKey(service)
 	url.Route(api)  //=> createTinyUrl(api)
 
-	// router.GET("*", func(ctx *gin.Context) {
-	// 	ctx.JSON(http.StatusNotFound, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
-	// })
+	/*
+		*golang 的route一開始就會編譯好，不是這樣抓
+		router.GET("*", func(ctx *gin.Context) {
+			ctx.JSON(http.StatusNotFound, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+		})
+	*/
 
-	router.Run(fmt.Sprintf(":%v", config.Config.Port))
+	// router.Run(fmt.Sprintf(":%v", config.Config.Port))
 
-	/* from funnow-go
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.Config.Port),
-		Handler: router,
-		// ReadTimeout:    defReadTimeout,
-		// WriteTimeout:   defWriteTimeout,
-		// MaxHeaderBytes: defMaxHeaderBytes,
+		Addr:           fmt.Sprintf(":%v", config.Config.Port),
+		Handler:        router,
+		ReadTimeout:    defReadTimeout,
+		WriteTimeout:   defWriteTimeout,
+		MaxHeaderBytes: defMaxHeaderBytes,
 	}
 
-	fmt.Printf("FunNow API Server started listen port: %d", config.Config.Port)
+	fmt.Printf("tinyUrlMock-go Server started listen port: %v\n", config.Config.Port)
 
 	go func() {
 		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			// logs.Systemf("Server listen error: %v", err)
-			fmt.Printf("sever listen error %v", err)
+			fmt.Printf("sever listen error %v\n", err)
 		}
 	}()
-	*/
 
 }

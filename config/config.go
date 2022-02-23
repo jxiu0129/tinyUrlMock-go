@@ -25,6 +25,14 @@ var Config = struct {
 		Host         string `default:"redis" yaml:"Host"`
 		Port         string `default:"6379" yaml:"Port"`
 	}
+
+	RateLimiter struct {
+		Base           int64 `default:"10" yaml:"AdminAuth"`
+		AdminAuth      int64 `env:"RATE_LIMITER_ADMIN_AUTH" default:"5" yaml:"AdminAuth"`
+		BossNowAuth    int64 `env:"RATE_LIMITER_BOSSNOW_AUTH" default:"5" yaml:"BossNowAuth"`
+		FunNowAuth     int64 `env:"RATE_LIMITER_FUNNOW_AUTH" default:"5" yaml:"FunNowAuth"`
+		FunBookReserve int64 `env:"RATE_LIMITER_FUNBOOK_RESERVE" default:"5" yaml:"FunBookReserve"`
+	}
 }{}
 
 func Init() {
