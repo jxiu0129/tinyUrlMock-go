@@ -40,7 +40,8 @@ func main() {
 	// rate limiter
 	router.Use(middleware.RateLimiterByIP(middleware.DefRateLimiterPeriod, config.Config.RateLimiter.Base))
 
-	base.Route(router) //=> /:redirect(api)
+	// base.Route(router) //=> /:redirect(api)
+	base.Route(router.Group(""))
 
 	api := router.Group("/v1")
 	keys.Route(api) //=> createNewKey(service)
