@@ -1,7 +1,6 @@
 package base
 
 import (
-	"fmt"
 	"net/http"
 	surl "tinyUrlMock-go/api/services/url"
 	"tinyUrlMock-go/api/url"
@@ -12,26 +11,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// for practice
-type response struct {
-	status  int
-	message string
-	// data
-}
+type (
+	RedirectUrlRequest struct {
+		Url string `uri:"redirect" binding:"required"`
+	}
+)
 
-type data struct {
-	datas []string
+func (r *RedirectUrlRequest) validate(ctx *gin.Context) error {
+	if err := ctx.ShouldBindUri(r); err != nil {
+		return errors.ErrInvalidParams.SetError(err)
+	}
+	if len(r.Url) != 6 {
+		errors.Throw(ctx, errors.ErrNoData.Err)
+		return nil
+	}
+	r.Url = ctx.Param("redirect")
+	return nil
 }
 
 func RedirectUrl(ctx *gin.Context) {
-	redirectUrl := ctx.Param("redirect")
-	fmt.Println(redirectUrl)
-
-	// 放進request
-	if len(redirectUrl) != 6 {
-		errors.Throw(ctx, errors.ErrNoData.Err)
+	req := &RedirectUrlRequest{}
+	if err := req.validate(ctx); err != nil {
+		errors.Throw(ctx, err)
 		return
 	}
+
+	redirectUrl := ctx.Param("redirect")
 
 	//todo 1. 先從redis
 

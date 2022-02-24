@@ -4,6 +4,8 @@ import (
 	"github.com/jinzhu/configor"
 )
 
+// *會先抓yaml才抓這裡的default
+
 var Config = struct {
 	// 坑：tag裡key沒寫清楚會直接不compile然後也不說
 	BaseURL string `default:"http://localhost" yaml:"BaseURL"`
@@ -17,6 +19,7 @@ var Config = struct {
 		Port     string `default:"3306" yaml:"Port"`
 		Name     string `default:"tinyUrlMock_go" yaml:"Name"`
 		Params   string `yaml:"Params"`
+		Debug    bool   `default:"false" yaml:"Debug"`
 	}
 
 	Redis struct {

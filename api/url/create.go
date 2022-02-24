@@ -19,10 +19,6 @@ type (
 	CreateTinyUrlRequest struct {
 		Url string `form:"url" binding:"required"` //!why bad
 	}
-	// ? hide what for
-	/* CreateGiftRequest struct {
-		ProductID    hide.Uint64 `json:"product_id" binding:"required"`
-	} */
 	CreateTinyUrlResponse struct {
 		apires.Base
 		Data CreateTinyUrlResponseData `json:"data"`

@@ -1,5 +1,7 @@
 package errors
 
+import "fmt"
+
 type CustomErr struct {
 	HTTPCode int
 	Code     int
@@ -19,4 +21,11 @@ func NewErr(httpCode, code int) *CustomErr {
 func (e *CustomErr) SetError(err error) *CustomErr {
 	e.Err = err
 	return e
+}
+
+func (e *CustomErr) Error() string {
+	if e.Err == nil {
+		return GetMessage(e.Code)
+	}
+	return fmt.Sprintf("%+v", e.Err)
 }

@@ -50,6 +50,7 @@ func Init() {
 
 	// 再把連上的DB連上orm
 	DBGorm, err = gorm.Open("mysql", DB)
+	DBGorm.LogMode(config.Config.DB.Debug)
 	if err != nil {
 		panic(err)
 	}

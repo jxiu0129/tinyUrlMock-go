@@ -2,6 +2,7 @@ package keys
 
 import (
 	"net/http"
+	"regexp"
 	"strconv"
 	skey "tinyUrlMock-go/api/services/key"
 	"tinyUrlMock-go/lib/apires"
@@ -39,12 +40,8 @@ import (
 type (
 	CreateNewKeysRequest struct {
 		// Url string `form:"url" binding:"required` //!why bad
-		Amount int `json:"amount" `
+		Amount int `form:"amount" `
 	}
-	// ? hide what for
-	/* CreateGiftRequest struct {
-		ProductID    hide.Uint64 `json:"product_id" binding:"required"`
-	} */
 	CreateNewKeysResponse struct {
 		apires.Base
 		Data CreateNewKeysResponseData `json:"data"`
@@ -56,16 +53,27 @@ type (
 	}
 )
 
-// createNewKeys (create) -> (service/create)
-// setKeysUsed (update) -> (service/control)
-// setKeysUnused (update) -> (service/control)
-// url_expired ? () -> url
-func CreateNewKeys(ctx *gin.Context) {
-	// todo 要套用request struct
-	// todo 要加transaction
-	amount, err := strconv.Atoi(ctx.Query("amount"))
+// todo not finish yet
+func (r *CreateNewKeysRequest) validate(ctx *gin.Context) error {
+	if err := ctx.ShouldBindQuery(r); err != nil {
+		return errors.ErrInvalidParams.SetError(err)
+	}
+	match, err := regexp.MatchString(`^[1-9]\d*$`, strconv.Itoa(r.Amount))
 	if err != nil {
+		return err
+	}
+	if !match {
+		return errors.ErrInvalidParams.SetError(err)
+	}
+	return nil
+}
+
+func CreateNewKeys(ctx *gin.Context) {
+	// todo 要加transaction
+	req := &CreateNewKeysRequest{}
+	if err := req.validate(ctx); err != nil {
 		errors.Throw(ctx, err)
+		return
 	}
 
 	currentKeys := make(map[string]bool)
@@ -91,7 +99,7 @@ func CreateNewKeys(ctx *gin.Context) {
 	}
 
 	// 2. create new keys
-	for len(newKeys) < amount {
+	for len(newKeys) < req.Amount {
 		id, err := gonanoid.Generate("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 6)
 		if err != nil {
 			errors.Throw(ctx, err)

@@ -480,3 +480,12 @@ func DBError(c *gin.Context, err error) {
 		Error(c, http.StatusInternalServerError, CODE_DB_ERR, err)
 	}
 }
+
+func GetMessage(code int) string {
+
+	if message, ok := ErrCodeMsgMap[code]; ok {
+		return message
+	}
+
+	return ""
+}
