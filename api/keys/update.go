@@ -84,7 +84,6 @@ func SetOneKeyUsed() (string, error) {
 	return key, nil
 }
 
-// todo 沒測過
 func SetKeyUnused(keys []string) error {
 
 	// keys => ['ws231w', 'dqwdw2',...]

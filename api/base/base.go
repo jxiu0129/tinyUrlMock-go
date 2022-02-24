@@ -39,33 +39,33 @@ func Route(router *gin.Engine) {
 		c.JSON(200, testRes2)
 	})
 
-	// ! real redirect
 	router.GET("/:redirect", func(ctx *gin.Context) {
 		redirectUrl := ctx.Param("redirect")
-		if len(redirectUrl) == 6 {
-			//todo 1. 先從redis
 
-			// 2. 再從db
-			existUrl, err := surl.New(db.DBGorm).FindExistUrl(surl.FindUrl{ShortenUrl: redirectUrl})
-			// fmt.Println(url)
-			if err != nil {
+		if len(redirectUrl) != 6 {
+			errors.Throw(ctx, errors.ErrNoData.Err)
+			return
+		}
+
+		//todo 1. 先從redis
+
+		// 2. 再從db
+		existUrl, err := surl.New(db.DBGorm).FindShortenUrl(redirectUrl)
+		if err != nil {
+			errors.Throw(ctx, err)
+			return
+		}
+		if util.IsUrlExpired(existUrl.CreatedAt) {
+			// url expired
+			if err := url.UrlExpired(existUrl); err != nil {
 				errors.Throw(ctx, err)
 				return
 			}
-			if existUrl != nil {
-				if util.IsUrlExpired(existUrl.CreatedAt) {
-					// url expired
-					if err := url.UrlExpired(existUrl); err != nil {
-						errors.Throw(ctx, err)
-						return
-					}
-				} else {
-					fmt.Println("redirect from db")
-					ctx.Redirect(http.StatusFound, "https://"+existUrl.OriginalUrl)
-				}
-			}
-		} else {
 			errors.Throw(ctx, errors.ErrNoData.Err)
+			return
 		}
+
+		ctx.Redirect(http.StatusFound, "https://"+existUrl.OriginalUrl)
+
 	})
 }

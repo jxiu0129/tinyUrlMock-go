@@ -23,7 +23,6 @@ func (s *Service) SearchAllUsedKeys() ([]*edb.UsedKeys, error) {
 	for usedKeyRows.Next() {
 		k := &edb.UsedKeys{}
 		if err := s.db.ScanRows(usedKeyRows, k); err != nil {
-			fmt.Printf("err ==> %+v\n", err)
 			return nil, err
 		}
 		usedKeys = append(usedKeys, k)

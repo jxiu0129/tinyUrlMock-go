@@ -1,10 +1,13 @@
 package errors
 
 import (
+	"database/sql"
 	"net/http"
 	"tinyUrlMock-go/lib/apires"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 )
 
 const MessageOK = "OK"
@@ -371,10 +374,7 @@ var ErrCodeMsgMap = map[int]string{
 
 func Throw(c *gin.Context, err error) {
 
-	//// logs.Log(c, logs.TypeErr, err.Error())
-	Error(c, http.StatusInternalServerError, CODE_UNKNOWN_ERR, err)
-
-	/* if gorm.IsRecordNotFoundError(err) || err == sql.ErrNoRows {
+	if gorm.IsRecordNotFoundError(err) || err == sql.ErrNoRows {
 		DBError(c, err)
 		return
 	}
@@ -382,13 +382,13 @@ func Throw(c *gin.Context, err error) {
 	switch e := err.(type) {
 	case *mysql.MySQLError, gorm.Errors:
 		DBError(c, e)
-	case *RedisErr:
-		RedisError(c, e)
-	case ICustomError:
-		CustomError(c, e)
+	// case *RedisErr:
+	// 	RedisError(c, e)
+	// case ICustomError:
+	// 	CustomError(c, e)
 	default:
 		Error(c, http.StatusInternalServerError, CODE_UNKNOWN_ERR, e)
-	} */
+	}
 }
 
 func Error(c *gin.Context, httpCode int, code int, err interface{}) {
@@ -457,4 +457,26 @@ func getMsgByCode(c *gin.Context, code int, msg string) string {
 		}
 	}
 	return msg
+}
+
+func DBError(c *gin.Context, err error) {
+
+	if err == sql.ErrNoRows || gorm.IsRecordNotFoundError(err) {
+		Error(c, http.StatusNotFound, CODE_NOT_EXISTS, "Data not found")
+		return
+	}
+
+	myerr, ok := err.(*mysql.MySQLError)
+	if !ok {
+		Error(c, http.StatusInternalServerError, CODE_DB_ERR, err)
+		return
+	}
+
+	if myerr.Number == 1062 {
+		Error(c, http.StatusBadRequest, CODE_DUPLICATE_KEY, "Duplicate data already exists")
+	} else if myerr.Number == 1452 {
+		Error(c, http.StatusBadRequest, CODE_INVALID_PARAMS, "Reference ID not exists")
+	} else {
+		Error(c, http.StatusInternalServerError, CODE_DB_ERR, err)
+	}
 }

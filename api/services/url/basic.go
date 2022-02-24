@@ -3,6 +3,8 @@ package surl
 import (
 	"fmt"
 	"tinyUrlMock-go/api/entities/edb"
+
+	"github.com/jinzhu/gorm"
 )
 
 func (s *Service) InsertUrls(newUrlsArray []*edb.Url) error {
@@ -30,7 +32,8 @@ type FindUrl struct {
 	ShortenUrl  string
 }
 
-func (s *Service) FindExistUrl(url FindUrl) (*edb.Url, error) {
+// ! will delete, leave for check
+/* func (s *Service) FindExistUrl(url FindUrl) (*edb.Url, error) {
 	u := &edb.Url{}
 	if url.ShortenUrl != "" {
 		if err := s.db.Where("ShortenUrl = ?", url.ShortenUrl).First(u).Error; err != nil {
@@ -44,6 +47,25 @@ func (s *Service) FindExistUrl(url FindUrl) (*edb.Url, error) {
 	}
 	if err := s.db.Where("OriginalUrl = ?", url.OriginalUrl).First(u).Error; err != nil {
 		if err.Error() == "record not found" {
+			// 若db查無此筆
+			return nil, nil
+		}
+		return nil, err
+	}
+	return u, nil
+} */
+
+func (s *Service) FindShortenUrl(url string) (*edb.Url, error) {
+	u := &edb.Url{}
+	if err := s.db.Where("ShortenUrl = ?", url).First(u).Error; err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+func (s *Service) FindOriginalUrl(url string) (*edb.Url, error) {
+	u := &edb.Url{}
+	if err := s.db.Where("OriginalUrl = ?", url).First(u).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
 			// 若db查無此筆
 			return nil, nil
 		}

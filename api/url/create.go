@@ -17,7 +17,7 @@ import (
 
 type (
 	CreateTinyUrlRequest struct {
-		Url string `form:"url" binding:"required` //!why bad
+		Url string `form:"url" binding:"required"` //!why bad
 	}
 	// ? hide what for
 	/* CreateGiftRequest struct {
@@ -53,10 +53,9 @@ func CreateTinyUrl(ctx *gin.Context) {
 		return
 	}
 	// todo 0.先從redis找
-	// todo url會過期
 	// 1.找db有沒有一模一樣已經換過的，有的話直接回傳
-	existUrl, err := surl.New(db.DBGorm).FindExistUrl(surl.FindUrl{OriginalUrl: originalUrl})
-	// fmt.Println("here ====> ", existUrl, err)
+	// existUrl, err := surl.New(db.DBGorm).FindExistUrl(surl.FindUrl{OriginalUrl: originalUrl})
+	existUrl, err := surl.New(db.DBGorm).FindOriginalUrl(originalUrl)
 	if err != nil {
 		errors.Throw(ctx, err)
 		return
@@ -66,24 +65,24 @@ func CreateTinyUrl(ctx *gin.Context) {
 		if util.IsUrlExpired(existUrl.CreatedAt) {
 			// url expired
 			if err := UrlExpired(existUrl); err != nil {
-				errors.Throw(ctx, err)
+				errors.Throw(ctx, errors.ErrNoData.Err)
 				return
 			}
-		} else {
-			// redis set
-			ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
-				Base: apires.Base{
-					Code:    errors.CODE_OK,
-					Message: errors.MessageOK,
-				},
-				Data: CreateTinyUrlResponseData{
-					ShortenUrl:  "http://localhost:8080/" + existUrl.ShortenUrl,
-					OriginalUrl: originalUrl,
-				},
-			})
-			fmt.Println("from db")
-			return
 		}
+		// redis set
+		ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
+			Base: apires.Base{
+				Code:    errors.CODE_OK,
+				Message: errors.MessageOK,
+			},
+			Data: CreateTinyUrlResponseData{
+				ShortenUrl:  "http://localhost:8080/" + existUrl.ShortenUrl,
+				OriginalUrl: originalUrl,
+			},
+		})
+		fmt.Println("from db")
+		return
+
 	}
 
 	// 2.新增一個tinyurl, (key DB)unused => used
