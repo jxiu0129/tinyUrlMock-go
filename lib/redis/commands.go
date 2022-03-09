@@ -1,0 +1,27 @@
+package redis
+
+const (
+	KEYS             = "KEYS"
+	DEL              = "DEL"
+	EXPIRE           = "EXPIRE"
+	EXISTS           = "EXISTS"
+	HGET             = "HGET"
+	HSET             = "HSET"
+	HMSET            = "HMSET"
+	HMGET            = "HMGET"
+	HGETALL          = "HGETALL"
+	HINCRBY          = "HINCRBY"
+	SETEX            = "SETEX"
+	GET              = "GET"
+	SET              = "SET"
+	SADD             = "SADD"
+	SPOP             = "SPOP"
+	SISMEMBER        = "SISMEMBER"
+	MGET             = "MGET"
+	MSET             = "MSET"
+	ZADD             = "ZADD"
+	ZREMRANGEBYSCORE = "ZREMRANGEBYSCORE"
+	ZRANGE           = "ZRANGE"
+	MSETNX           = "MSETNX"
+	TTL              = "TTL"
+)

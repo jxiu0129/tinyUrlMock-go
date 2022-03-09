@@ -1,7 +1,10 @@
 package base
 
 import (
+	"fmt"
 	"net/http"
+	ucache "tinyUrlMock-go/api/cache/url"
+	"tinyUrlMock-go/api/entities/edb"
 	surl "tinyUrlMock-go/api/services/url"
 	"tinyUrlMock-go/api/url"
 	"tinyUrlMock-go/lib/db"
@@ -36,12 +39,28 @@ func RedirectUrl(ctx *gin.Context) {
 		return
 	}
 
-	redirectUrl := ctx.Param("redirect")
-
 	//todo 1. 先從redis
+	cacheOriginalUrl, err := ucache.GetOriginalUrl(req.Url)
+	if err != nil {
+		errors.Throw(ctx, err)
+		return
+	}
+
+	if cacheOriginalUrl.OriginalUrl != "" {
+		urlCheck := &edb.Url{OriginalUrl: cacheOriginalUrl.OriginalUrl}
+		if util.IsUrlExpired(cacheOriginalUrl.CreatedAt) {
+			if err := url.UrlExpired(urlCheck); err != nil {
+				errors.Throw(ctx, errors.ErrNoData.Err)
+				return
+			}
+		}
+		fmt.Println("from redis")
+		ctx.Redirect(http.StatusFound, "https://"+urlCheck.OriginalUrl)
+		return
+	}
 
 	// 2. 再從db
-	existUrl, err := surl.New(db.DBGorm).FindShortenUrl(redirectUrl)
+	existUrl, err := surl.New(db.DBGorm).FindShortenUrl(req.Url)
 	if err != nil {
 		errors.Throw(ctx, err)
 		return
@@ -53,6 +72,11 @@ func RedirectUrl(ctx *gin.Context) {
 			return
 		}
 		errors.Throw(ctx, errors.ErrNoData.Err)
+		return
+	}
+
+	if err := ucache.SetOriginalUrl(existUrl); err != nil {
+		errors.Throw(ctx, err)
 		return
 	}
 

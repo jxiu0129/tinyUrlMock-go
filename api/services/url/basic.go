@@ -32,29 +32,6 @@ type FindUrl struct {
 	ShortenUrl  string
 }
 
-// ! will delete, leave for check
-/* func (s *Service) FindExistUrl(url FindUrl) (*edb.Url, error) {
-	u := &edb.Url{}
-	if url.ShortenUrl != "" {
-		if err := s.db.Where("ShortenUrl = ?", url.ShortenUrl).First(u).Error; err != nil {
-			if err.Error() == "record not found" {
-				// 若db查無此筆
-				return nil, nil
-			}
-			return nil, err
-		}
-		return u, nil
-	}
-	if err := s.db.Where("OriginalUrl = ?", url.OriginalUrl).First(u).Error; err != nil {
-		if err.Error() == "record not found" {
-			// 若db查無此筆
-			return nil, nil
-		}
-		return nil, err
-	}
-	return u, nil
-} */
-
 func (s *Service) FindShortenUrl(url string) (*edb.Url, error) {
 	u := &edb.Url{}
 	if err := s.db.Where("ShortenUrl = ?", url).First(u).Error; err != nil {

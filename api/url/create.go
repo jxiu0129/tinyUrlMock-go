@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	ucache "tinyUrlMock-go/api/cache/url"
 	"tinyUrlMock-go/api/entities/edb"
 	"tinyUrlMock-go/api/keys"
 	surl "tinyUrlMock-go/api/services/url"
@@ -39,7 +40,6 @@ func (req *CreateTinyUrlRequest) Bind(ctx *gin.Context) error {
 	return nil
 }
 
-// !fix -> createTinyUrl
 func CreateTinyUrl(ctx *gin.Context) {
 	originalUrl := ctx.Request.PostFormValue("url")
 	req := CreateTinyUrlRequest{}
@@ -48,9 +48,34 @@ func CreateTinyUrl(ctx *gin.Context) {
 		errors.Throw(ctx, err)
 		return
 	}
-	// todo 0.先從redis找
+	// 0.先從redis找
+	cacheShortenUrl, err := ucache.GetUniqueKey(originalUrl)
+	if err != nil {
+		errors.Throw(ctx, err)
+		return
+	}
+	if cacheShortenUrl.ShortenUrl != "" {
+		urlCheck := &edb.Url{ShortenUrl: cacheShortenUrl.ShortenUrl}
+		if util.IsUrlExpired(cacheShortenUrl.CreatedAt) {
+			if err := UrlExpired(urlCheck); err != nil {
+				errors.Throw(ctx, errors.ErrNoData.Err)
+				return
+			}
+		}
+		ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
+			Base: apires.Base{
+				Code:    errors.CODE_OK,
+				Message: errors.MessageOK,
+			},
+			Data: CreateTinyUrlResponseData{
+				ShortenUrl:  "http://localhost:8080/" + cacheShortenUrl.ShortenUrl,
+				OriginalUrl: originalUrl,
+			},
+		})
+		fmt.Println("from redis")
+		return
+	}
 	// 1.找db有沒有一模一樣已經換過的，有的話直接回傳
-	// existUrl, err := surl.New(db.DBGorm).FindExistUrl(surl.FindUrl{OriginalUrl: originalUrl})
 	existUrl, err := surl.New(db.DBGorm).FindOriginalUrl(originalUrl)
 	if err != nil {
 		errors.Throw(ctx, err)
@@ -66,6 +91,16 @@ func CreateTinyUrl(ctx *gin.Context) {
 			}
 		}
 		// redis set
+		setCacheData := &edb.Url{
+			ShortenUrl:  existUrl.ShortenUrl,
+			OriginalUrl: originalUrl,
+			CreatedAt:   existUrl.CreatedAt,
+		}
+		if err := ucache.SetUniqueKey(setCacheData); err != nil {
+			errors.Throw(ctx, err)
+			return
+		}
+
 		ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
 			Base: apires.Base{
 				Code:    errors.CODE_OK,

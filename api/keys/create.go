@@ -69,7 +69,6 @@ func (r *CreateNewKeysRequest) validate(ctx *gin.Context) error {
 }
 
 func CreateNewKeys(ctx *gin.Context) {
-	// todo 要加transaction
 	req := &CreateNewKeysRequest{}
 	if err := req.validate(ctx); err != nil {
 		errors.Throw(ctx, err)
