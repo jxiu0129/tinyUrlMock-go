@@ -17,16 +17,11 @@ const (
 	DefRateLimiterPeriod   = 1 * time.Minute
 )
 
-// func RateLimiterByUID(period time.Duration, limit int64) gin.HandlerFunc {
-// 	return RateLimiter(period, limit, KeyUIDRoute)
-// }
-
 func RateLimiterByIP(period time.Duration, limit int64) gin.HandlerFunc {
-	// return RateLimiter(period, limit, KeyIPRoute)
-	return RateLimiter(period, limit /* , KeyIPRoute */)
+	return RateLimiter(period, limit)
 }
 
-func RateLimiter(period time.Duration, limit int64 /* , keyGetter mgin.KeyGetter */) gin.HandlerFunc {
+func RateLimiter(period time.Duration, limit int64) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		rate := limiter.Rate{
@@ -62,10 +57,6 @@ func DefaultErrorHandler(c *gin.Context, err error) {
 func DefaultLimitReachedHandler(c *gin.Context) {
 	errors.Throw(c, errors.ErrAuth.Err)
 }
-
-// func KeyIPRoute(c *gin.Context) string {
-// 	return fmt.Sprintf("%v:%v", logs.GetClientIP(c), logs.GetRoutePath(c))
-// }
 
 func DefaultKeyGetter(c *gin.Context) string {
 	return c.ClientIP()

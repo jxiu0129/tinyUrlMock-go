@@ -10,8 +10,6 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-// map[shortenUrl]{OriginalUrl, createat}
-
 type OriginalUrlCache struct {
 	OriginalUrl string    `json: originalUrl`
 	CreatedAt   time.Time `json: createdAt`

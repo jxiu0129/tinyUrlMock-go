@@ -382,10 +382,6 @@ func Throw(c *gin.Context, err error) {
 	switch e := err.(type) {
 	case *mysql.MySQLError, gorm.Errors:
 		DBError(c, e)
-	// case *RedisErr:
-	// 	RedisError(c, e)
-	// case ICustomError:
-	// 	CustomError(c, e)
 	default:
 		Error(c, http.StatusInternalServerError, CODE_UNKNOWN_ERR, e)
 	}
@@ -395,13 +391,10 @@ func Error(c *gin.Context, httpCode int, code int, err interface{}) {
 	var msg string
 	switch err := err.(type) {
 	case CustomMsg:
-		// Error message and log already handled by CustomError
 		msg = string(err)
 	case error:
-		// logs.Log(c, logs.TypeErr, err.Error())
 		msg = getMsgByCode(c, code, err.Error())
 	case string:
-		// logs.Log(c, logs.TypeErr, err)
 		msg = getMsgByCode(c, code, err)
 	}
 
@@ -425,35 +418,22 @@ func Error(c *gin.Context, httpCode int, code int, err interface{}) {
 
 func getMsgByCode(c *gin.Context, code int, msg string) string {
 
-	// T := lang.GetTFunc(c)
 	switch code {
 	case CODE_AUTH_ERR:
 		msg = "Authentication failed"
 	case CODE_LOGIN_ERR:
 		msg = "Login failed"
-		// if T != nil {
-		// 	msg = T("login_failed_err")
-		// }
 	case CODE_SESSION_ERR:
 		msg = "Session error"
 	case CODE_GUEST_ERR:
 		msg = "Guest Authentication failed"
 	case CODE_NOT_EXISTS:
 		msg = "Data not found"
-		// if T != nil {
-		// 	msg = T("data_not_found")
-		// }
 	case CODE_PROMO_CREDIT_ERR:
 		msg = "Invalid credit card to use the promo code"
-		// if T != nil {
-		// 	msg = T("invalid_promo_credit")
-		// }
 	case CODE_INVALID_PARAMS:
 		if msg == "" {
 			msg = "Invalid input parameter"
-			// if T != nil {
-			// 	msg = T("params_err")
-			// }
 		}
 	}
 	return msg

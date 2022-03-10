@@ -39,7 +39,6 @@ func RedirectUrl(ctx *gin.Context) {
 		return
 	}
 
-	//todo 1. 先從redis
 	cacheOriginalUrl, err := ucache.GetOriginalUrl(req.Url)
 	if err != nil {
 		errors.Throw(ctx, err)

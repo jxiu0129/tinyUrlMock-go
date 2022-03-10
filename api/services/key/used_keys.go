@@ -6,7 +6,6 @@ import (
 )
 
 func (s *Service) SearchAllUsedKeys() ([]*edb.UsedKeys, error) {
-	// allKeys := &[]edb.UsedKeys{}
 	usedKey := &(edb.UsedKeys{})
 	usedKeys := []*edb.UsedKeys{}
 
@@ -19,7 +18,6 @@ func (s *Service) SearchAllUsedKeys() ([]*edb.UsedKeys, error) {
 	}
 	defer usedKeyRows.Close()
 
-	// fmt.Printf("rows ==> %+v\n", rows)
 	for usedKeyRows.Next() {
 		k := &edb.UsedKeys{}
 		if err := s.db.ScanRows(usedKeyRows, k); err != nil {
@@ -27,8 +25,6 @@ func (s *Service) SearchAllUsedKeys() ([]*edb.UsedKeys, error) {
 		}
 		usedKeys = append(usedKeys, k)
 	}
-
-	// fmt.Printf("unUsedKeys ==> %+v\n", usedKeys)
 
 	return usedKeys, nil
 }

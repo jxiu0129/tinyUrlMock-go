@@ -2,7 +2,6 @@ package ucache
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 	"tinyUrlMock-go/api/entities/edb"
 	rlib "tinyUrlMock-go/lib/redis"
@@ -32,7 +31,6 @@ func SetUniqueKey(url *edb.Url) error {
 	if _, err := r.Do(rlib.SET, url.OriginalUrl, string(sc)); err != nil {
 		return err
 	}
-	fmt.Println("hi")
 
 	return nil
 }

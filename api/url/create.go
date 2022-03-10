@@ -18,7 +18,7 @@ import (
 
 type (
 	CreateTinyUrlRequest struct {
-		Url string `form:"url" binding:"required"` //!why bad
+		Url string `form:"url" binding:"required"`
 	}
 	CreateTinyUrlResponse struct {
 		apires.Base
@@ -27,7 +27,7 @@ type (
 
 	CreateTinyUrlResponseData struct {
 		OriginalUrl string `json:"originalUrl"`
-		ShortenUrl  string `json:"shortenUrl"` //todo: 會在回傳時欄位變tag裡的，庫，待研究
+		ShortenUrl  string `json:"shortenUrl"`
 	}
 )
 
@@ -35,8 +35,6 @@ func (req *CreateTinyUrlRequest) Bind(ctx *gin.Context) error {
 	if err := ctx.ShouldBind(req); err != nil {
 		return err
 	}
-	// put things in req
-
 	return nil
 }
 
@@ -75,7 +73,6 @@ func CreateTinyUrl(ctx *gin.Context) {
 		fmt.Println("from redis")
 		return
 	}
-	// 1.找db有沒有一模一樣已經換過的，有的話直接回傳
 	existUrl, err := surl.New(db.DBGorm).FindOriginalUrl(originalUrl)
 	if err != nil {
 		errors.Throw(ctx, err)
@@ -84,13 +81,11 @@ func CreateTinyUrl(ctx *gin.Context) {
 	}
 	if existUrl != nil {
 		if util.IsUrlExpired(existUrl.CreatedAt) {
-			// url expired
 			if err := UrlExpired(existUrl); err != nil {
 				errors.Throw(ctx, errors.ErrNoData.Err)
 				return
 			}
 		}
-		// redis set
 		setCacheData := &edb.Url{
 			ShortenUrl:  existUrl.ShortenUrl,
 			OriginalUrl: originalUrl,
@@ -116,14 +111,11 @@ func CreateTinyUrl(ctx *gin.Context) {
 
 	}
 
-	// 2.新增一個tinyurl, (key DB)unused => used
-	// 2.1 setKeysUsed();
 	newkey, err := keys.SetOneKeyUsed()
 	if err != nil {
 		errors.Throw(ctx, err)
 		return
 	}
-	// 2.2 insert_newURL(url, uniqueKey);
 	newUrl := []*edb.Url{
 		{ShortenUrl: newkey, OriginalUrl: originalUrl, CreatedAt: time.Now()},
 	}
@@ -132,7 +124,6 @@ func CreateTinyUrl(ctx *gin.Context) {
 		return
 	}
 
-	// ?ok ask: &CreateTinyUrlResponse => 吃值吃址都可以
 	ctx.JSON(http.StatusOK, &CreateTinyUrlResponse{
 		Base: apires.Base{
 			Code:    errors.CODE_OK,

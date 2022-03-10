@@ -32,10 +32,8 @@ func (s *Service) SearchAllUnusedKeys() ([]*edb.UnusedKeys, error) {
 }
 
 func (s *Service) InsertNewUnusedKeys(newKeysArray []string) (string, error) {
-	// newKeys := []*edb.UnusedKeys{}
 	valuesStr := ""
 	for i, key := range newKeysArray {
-		// newKeys = append(newKeys, key) // ?why&
 		if i == len(newKeysArray)-1 {
 			valuesStr += fmt.Sprintf("('%v')", key)
 			break
@@ -50,12 +48,6 @@ func (s *Service) InsertNewUnusedKeys(newKeysArray []string) (string, error) {
 	if err := s.db.Exec(sql).Error; err != nil {
 		return "insertNewKey Error", err
 	}
-
-	//* gorm v1 不能一次create多個
-	/* if err := s.db.Model(&edb.UnusedKeys{}).Create(&newKeys).Error; err != nil {
-		fmt.Errorf("insertNewKey error ==> %v", err)
-		return "insertNewKey error", err
-	} */
 
 	return "insertNewKey success", nil
 }

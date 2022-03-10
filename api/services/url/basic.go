@@ -43,7 +43,6 @@ func (s *Service) FindOriginalUrl(url string) (*edb.Url, error) {
 	u := &edb.Url{}
 	if err := s.db.Where("OriginalUrl = ?", url).First(u).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			// 若db查無此筆
 			return nil, nil
 		}
 		return nil, err
